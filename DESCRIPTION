@@ -1,4 +1,4 @@
-Package: sentiment
+Package: sentimentfork
 Type: Package
 Title: Tools for Sentiment Analysis
 Version: 0.2
