@@ -57,15 +57,14 @@ classify_polarity <- function(textColumns,algorithm="bayes",pstrong=0.5,pweak=1.
         if (best_fit != "neutral" && class(nrow(words)) != "NULL") {
           # Find top 2 most largest values
 
-          print('words:\n')
-
           words <- rbind(words[rev(order(words[,2])),]) # Order by highest values of polarity
-          print(words)
+          sentences <- strsplit(textColumns, "\\.")[[1]]
 
-          topwords <- rbind(topwords, words[1,])
-          if (nrow(words) > 1) {
-            topwords <- rbind(topwords, words[2,])
-          }
+          word <- words[1,1]
+          sentenceIndex <- grep(word, sentences, fixed=TRUE)
+
+          topwords <- rbind(topwords, c(sentences[sentenceIndex], words[1,2]))
+          print(topwords)
         }
         else {
           # Find largest value from negative and positive
