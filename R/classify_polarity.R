@@ -63,16 +63,22 @@ classify_polarity <- function(textColumns, originalTextColumns, algorithm="bayes
           word <- words[1,1]
           sentenceIndex <- grep(word, sentences, fixed=TRUE)
 
-          topwords <- rbind(topwords, c(sentences[sentenceIndex], words[1,2]))
+          sentence <- sentences[sentenceIndex]
+          if (length(sentence) > 0) {
+            topwords <- rbind(topwords, c(sentence, words[1,2]))
+          }
 
           if (nrow(words) > 1) {
             word <- words[1,2]
-            sentenceIndex <- grep(word, sentences, fixed=TRUE)            
-            topwords <- rbind(topwords, c(sentences[sentenceIndex], words[2,2]))            
+            sentenceIndex <- grep(word, sentences, fixed=TRUE)
+            sentence <- sentences[sentenceIndex]
+            if (length(sentence) > 0) {
+              topwords <- rbind(topwords, c(sentences[sentenceIndex], words[2,2]))
+            }
           }
         }
         else {
-          # Find largest value from negative and positive
+          # TODO: Find largest value from negative and positive
           
         }
 
