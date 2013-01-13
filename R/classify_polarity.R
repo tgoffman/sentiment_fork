@@ -1,4 +1,4 @@
-classify_polarity <- function(textColumns,algorithm="bayes",pstrong=0.5,pweak=1.0,prior=1.0,verbose=FALSE,...) {
+classify_polarity <- function(textColumns, originalTextColumns, algorithm="bayes",pstrong=0.5,pweak=1.0,prior=1.0,verbose=FALSE,...) {
 	matrix <- create_matrix(textColumns,...)
 	lexicon <- read.csv(system.file("data/subjectivity.csv.gz",package="sentiment"),header=FALSE)
 
@@ -58,7 +58,7 @@ classify_polarity <- function(textColumns,algorithm="bayes",pstrong=0.5,pweak=1.
           # Find top 2 most largest values
 
           words <- rbind(words[rev(order(words[,2])),]) # Order by highest values of polarity
-          sentences <- strsplit(textColumns, "\\.")[[1]]
+          sentences <- strsplit(originalTextColumns, "\\.")[[1]]
 
           word <- words[1,1]
           sentenceIndex <- grep(word, sentences, fixed=TRUE)
