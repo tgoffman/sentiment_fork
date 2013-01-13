@@ -3,12 +3,12 @@ classify_polarity <- function(textColumns,algorithm="bayes",pstrong=0.5,pweak=1.
 	lexicon <- read.csv(system.file("data/subjectivity.csv.gz",package="sentiment"),header=FALSE)
 
 	counts <- list(positive=length(which(lexicon[,3]=="positive")),negative=length(which(lexicon[,3]=="negative")),total=nrow(lexicon))
-	documents <- c()
 
 	for (i in 1:nrow(matrix)) {
 		if (verbose) print(paste("DOCUMENT",i))
-		scores <- list(positive=0,negative=0)
+		scores <- list(positive=0,negative=0,words=list(positive=c(), negative=c()))
 		doc <- matrix[i,]
+
 		words <- findFreqTerms(doc,lowfreq=1)
 		
 		for (word in words) {
@@ -27,34 +27,58 @@ classify_polarity <- function(textColumns,algorithm="bayes",pstrong=0.5,pweak=1.
 				if (verbose) {
                     print(paste("WORD:",word,"CAT:",category,"POL:",polarity,"SCORE:",score))
 				}
-				
+
+                                scores$words[[category]] <- rbind(scores$words[[category]], c(word, score))
 				scores[[category]] <- scores[[category]]+score
 			}		
 		}
-		
-		if (algorithm=="bayes") {
-			for (key in names(scores)) {
+
+		for (key in names(scores)) {
+                        if (key == 'words') { break }
+                 	if (algorithm=="bayes") {
 				count <- counts[[key]]
 				total <- counts[["total"]]
 				score <- abs(log(count/total))
 				scores[[key]] <- scores[[key]]+score
-			}
-		} else {
-			for (key in names(scores)) {
+
+            		} else {
 				scores[[key]] <- scores[[key]]+0.000001
 			}
 		}
 		
         best_fit <- names(scores)[which.max(unlist(scores))]
+
+
         ratio <- as.integer(abs(scores$positive/scores$negative))
+        words <- scores$words[[best_fit]]                
         if (ratio==1) best_fit <- "neutral"
-		documents <- rbind(documents,c(scores$positive,scores$negative,abs(scores$positive/scores$negative),best_fit))
+
+        topwords <- c()
+        if (best_fit != "neutral" && class(nrow(words)) != "NULL") {
+          # Find top 2 most largest values
+
+          print('words:\n')
+
+          words <- rbind(words[rev(order(words[,2])),]) # Order by highest values of polarity
+          print(words)
+
+          topwords <- rbind(topwords, words[1,])
+          if (nrow(words) > 1) {
+            topwords <- rbind(topwords, words[2,])
+          }
+        }
+        else {
+          # Find largest value from negative and positive
+          
+        }
+
+	documents <- list(scores$positive,scores$negative,abs(scores$positive/scores$negative),best_fit,topwords)
+
 		if (verbose) {
 			print(paste("POS:",scores$positive,"NEG:",scores$negative,"RATIO:",abs(scores$positive/scores$negative)))
 			cat("\n")
 		}
 	}
 	
-	colnames(documents) <- c("POS","NEG","POS/NEG","BEST_FIT")
 	return(documents)
 }
